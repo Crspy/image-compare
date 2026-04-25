@@ -8,216 +8,95 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body {
-    height: 100%;
-    overflow: hidden;
-    background: #000;
-    color: #ddd;
+    height: 100%; overflow: hidden; background: #000; color: #ddd;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     user-select: none;
   }
-
   #toolbar {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 48px;
-    background: #111;
-    border-bottom: 1px solid #2a2a2a;
-    display: flex;
-    align-items: center;
-    padding: 0 12px;
-    gap: 8px;
-    z-index: 100;
-    overflow-x: auto;
-    white-space: nowrap;
+    position: fixed; top: 0; left: 0; right: 0; height: 48px; background: #111;
+    border-bottom: 1px solid #2a2a2a; display: flex; align-items: center;
+    padding: 0 12px; gap: 8px; z-index: 100; overflow-x: auto; white-space: nowrap;
   }
-
   .group { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
   .sep { width: 1px; height: 22px; background: #2a2a2a; margin: 0 4px; flex-shrink: 0; }
-
-  button {
-    background: #232323;
-    color: #ddd;
-    border: 1px solid #333;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    font-family: inherit;
+  button, select {
+    background: #232323; color: #ddd; border: 1px solid #333; padding: 6px 12px;
+    border-radius: 4px; cursor: pointer; font-size: 12px; font-family: inherit;
     transition: background .15s;
   }
-  button:hover { background: #2e2e2e; }
-  button.active {
-    background: #1a5fb4;
-    border-color: #2570c5;
-    color: #fff;
-  }
-
+  button:hover, select:hover { background: #2e2e2e; }
+  button.active { background: #1a5fb4; border-color: #2570c5; color: #fff; }
+  select { appearance: none; padding-right: 24px; font-weight: bold; color: #6ed16e;}
+  
   .file-info {
-    font-size: 11px;
-    color: #888;
-    max-width: 130px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-size: 11px; color: #888; max-width: 130px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
   .file-info.loaded { color: #6ed16e; }
 
-  #zoomLabel {
-    font-size: 11px;
-    color: #aaa;
-    min-width: 56px;
-    font-variant-numeric: tabular-nums;
-  }
-
-  #zoomSlider {
-    width: 200px;
-    accent-color: #1a5fb4;
-  }
+  #zoomLabel { font-size: 11px; color: #aaa; min-width: 56px; font-variant-numeric: tabular-nums; }
+  #zoomSlider { width: 200px; accent-color: #1a5fb4; }
   #zoomSlider:disabled { opacity: 0.35; cursor: not-allowed; }
-
   input[type="file"] { display: none; }
-
+  
   #stage {
-    position: absolute;
-    top: 48px; left: 0; right: 0; bottom: 0;
-    background: #000;
-    overflow: hidden;
+    position: absolute; top: 48px; left: 0; right: 0; bottom: 0; background: #000; overflow: hidden;
   }
-
   .empty {
-    position: absolute; inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #555;
-    font-size: 14px;
-    text-align: center;
-    padding: 20px;
+    position: absolute; inset: 0; display: flex; align-items: center;
+    justify-content: center; color: #555; font-size: 14px; text-align: center; padding: 20px;
   }
-
   /* SLIDE MODE */
   .slide-stage { position: absolute; inset: 0; }
   .slide-img {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%;
-    object-fit: contain;
-    pointer-events: none;
-    -webkit-user-drag: none;
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+    pointer-events: none; -webkit-user-drag: none;
   }
   .slide-divider {
-    position: absolute;
-    top: 0; bottom: 0;
-    width: 2px;
-    background: #fff;
-    cursor: ew-resize;
-    z-index: 5;
-    box-shadow: 0 0 8px rgba(0,0,0,0.9);
-    transform: translateX(-1px);
+    position: absolute; top: 0; bottom: 0; width: 2px; background: #fff;
+    cursor: ew-resize; z-index: 5; box-shadow: 0 0 8px rgba(0,0,0,0.9); transform: translateX(-1px);
   }
   .slide-handle {
-    position: absolute;
-    top: 50%; left: 1px;
-    transform: translate(-50%, -50%);
-    width: 38px; height: 38px;
-    border-radius: 50%;
-    background: #fff;
-    color: #222;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; font-weight: bold;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.85);
-    pointer-events: none;
+    position: absolute; top: 50%; left: 1px; transform: translate(-50%, -50%);
+    width: 38px; height: 38px; border-radius: 50%; background: #fff; color: #222;
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
+    font-weight: bold; box-shadow: 0 2px 12px rgba(0,0,0,0.85); pointer-events: none;
   }
   .slide-label {
-    position: absolute;
-    top: 12px;
-    background: rgba(0,0,0,0.75);
-    padding: 4px 10px;
-    border-radius: 3px;
-    font-size: 11px;
-    pointer-events: none;
-    z-index: 4;
-    border-left: 3px solid #1a5fb4;
+    position: absolute; top: 12px; background: rgba(0,0,0,0.75); padding: 4px 10px;
+    border-radius: 3px; font-size: 11px; pointer-events: none; z-index: 4; border-left: 3px solid #1a5fb4;
   }
   .slide-label.left { left: 12px; }
   .slide-label.right { right: 12px; }
-
   /* TOGGLE MODE */
-  .toggle-stage {
-    position: absolute; inset: 0;
-    cursor: grab;
-    overflow: hidden;
-  }
+  .toggle-stage { position: absolute; inset: 0; cursor: grab; overflow: hidden; }
   .toggle-stage.grabbing { cursor: grabbing; }
   .toggle-img {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    object-fit: contain;
-    transform-origin: 0 0;
-    pointer-events: none;
-    will-change: transform;
-    -webkit-user-drag: none;
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain;
+    transform-origin: 0 0; pointer-events: none; will-change: transform; -webkit-user-drag: none;
   }
   .toggle-img.hidden { display: none; }
   .toggle-indicator {
-    position: absolute;
-    top: 12px; left: 12px;
-    background: rgba(0,0,0,0.78);
-    color: #fff;
-    padding: 6px 12px;
-    border-radius: 3px;
-    font-size: 12px;
-    pointer-events: none;
-    z-index: 5;
-    border-left: 3px solid #1a5fb4;
-    font-weight: 600;
+    position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.78); color: #fff;
+    padding: 6px 12px; border-radius: 3px; font-size: 12px; pointer-events: none; z-index: 5;
+    border-left: 3px solid #1a5fb4; font-weight: 600;
   }
   .toggle-hint {
-    position: absolute;
-    bottom: 12px; left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,0.6);
-    color: #aaa;
-    padding: 5px 12px;
-    border-radius: 3px;
-    font-size: 11px;
-    pointer-events: none;
-    z-index: 5;
+    position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6);
+    color: #aaa; padding: 5px 12px; border-radius: 3px; font-size: 11px; pointer-events: none; z-index: 5;
   }
-
   /* SPLIT MODE */
-  .split-stage {
-    position: absolute; inset: 0;
-    display: flex;
-  }
-  .split-pane {
-    flex: 1;
-    position: relative;
-    overflow: hidden;
-    cursor: grab;
-  }
+  .split-stage { position: absolute; inset: 0; display: flex; }
+  .split-pane { flex: 1; position: relative; overflow: hidden; cursor: grab; }
   .split-pane:first-child { border-right: 1px solid #444; }
   .split-pane.grabbing { cursor: grabbing; }
   .split-img {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    object-fit: contain;
-    transform-origin: 0 0;
-    pointer-events: none;
-    will-change: transform;
-    -webkit-user-drag: none;
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain;
+    transform-origin: 0 0; pointer-events: none; will-change: transform; -webkit-user-drag: none;
   }
   .split-label {
-    position: absolute;
-    top: 10px; left: 10px;
-    background: rgba(0,0,0,0.78);
-    padding: 4px 10px;
-    border-radius: 3px;
-    font-size: 11px;
-    pointer-events: none;
-    z-index: 5;
-    border-left: 3px solid #1a5fb4;
+    position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.78); padding: 4px 10px;
+    border-radius: 3px; font-size: 11px; pointer-events: none; z-index: 5; border-left: 3px solid #1a5fb4;
   }
 </style>
 </head>
@@ -229,14 +108,26 @@
       <button class="mode-btn" data-mode="split">Split</button>
     </div>
     <div class="sep"></div>
+    
     <div class="group">
-      <button id="load1Btn">Load Image 1</button>
+      <span style="font-size: 12px; color: #888;">Sample:</span>
+      <select id="sampleSelect">
+          <option value="custom">Custom Files</option>
+      </select>
+      <span id="loadingStatus" style="font-size: 11px; color: #aaa; margin-left: 4px;"></span>
+    </div>
+    
+    <div class="sep"></div>
+    
+    <div class="group">
+      <button id="load1Btn">Load Img 1</button>
       <span class="file-info" id="file1Status">No image</span>
     </div>
     <div class="group">
-      <button id="load2Btn">Load Image 2</button>
+      <button id="load2Btn">Load Img 2</button>
       <span class="file-info" id="file2Status">No image</span>
     </div>
+
     <div class="sep"></div>
     <div class="group">
       <span id="zoomLabel">Zoom 1.0×</span>
@@ -244,6 +135,7 @@
     </div>
     <div class="sep"></div>
     <button id="resetBtn">Reset View</button>
+
     <input type="file" id="file1Input" accept="image/*">
     <input type="file" id="file2Input" accept="image/*">
   </div>
@@ -253,75 +145,144 @@
 <script>
 "use strict";
 
+// ==========================================
+// CONFIGURATION: ADD YOUR FOLDER NAMES HERE
+// ==========================================
+const SAMPLE_FOLDERS = [
+    "1",
+];
+// ==========================================
+
 const state = {
   img1: null,
   img2: null,
   mode: 'slide',
-  zoom: 1,        // shared by toggle + split
-  panX: 0,        // shared by toggle + split
-  panY: 0,
-  slidePos: 0.5,  // slide divider position [0..1]
-  toggleImg: 1,
+  zoom: 1, panX: 0, panY: 0,
+  slidePos: 0.5,
+  toggleImg: 1
 };
 
-const stage      = document.getElementById('stage');
+const stage = document.getElementById('stage');
 const zoomSlider = document.getElementById('zoomSlider');
-const zoomLabel  = document.getElementById('zoomLabel');
-const file1Status= document.getElementById('file1Status');
-const file2Status= document.getElementById('file2Status');
+const zoomLabel = document.getElementById('zoomLabel');
+const sampleSelect = document.getElementById('sampleSelect');
+const loadingStatus = document.getElementById('loadingStatus');
+const file1Status = document.getElementById('file1Status');
+const file2Status = document.getElementById('file2Status');
 
 const ZOOM_MIN = 1, ZOOM_MAX = 10;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
-/* ---------- file loading ---------- */
+/* ---------- Auto-loading Logic ---------- */
+
+SAMPLE_FOLDERS.forEach(folder => {
+    const option = document.createElement('option');
+    option.value = folder;
+    option.textContent = folder;
+    sampleSelect.appendChild(option);
+});
+
+function resolveImagePath(folderName, baseName, callback) {
+    const extensions = ['.png', '.jpg', '.jpeg', '.PNG', '.JPG'];
+    let extIndex = 0;
+
+    function tryNext() {
+        if (extIndex >= extensions.length) {
+            callback(null);
+            return;
+        }
+        const testPath = `samples/${folderName}/${baseName}${extensions[extIndex]}`;
+        const img = new Image();
+        img.onload = () => callback(testPath);
+        img.onerror = () => { extIndex++; tryNext(); };
+        img.src = testPath;
+    }
+    tryNext();
+}
+
+function loadSamplePair(folderName) {
+    if (folderName === 'custom') return;
+    loadingStatus.textContent = "Loading...";
+    state.img1 = null; state.img2 = null;
+    render(); 
+
+    resolveImagePath(folderName, '1', (path1) => {
+        if (!path1) { loadingStatus.textContent = "Error: Img 1 not found."; return; }
+        resolveImagePath(folderName, '2', (path2) => {
+            if (!path2) { loadingStatus.textContent = "Error: Img 2 not found."; return; }
+            
+            state.img1 = path1;
+            state.img2 = path2;
+            loadingStatus.textContent = "";
+            
+            file1Status.textContent = path1.split('/').pop();
+            file1Status.classList.add('loaded');
+            file2Status.textContent = path2.split('/').pop();
+            file2Status.classList.add('loaded');
+            
+            state.zoom = 1; state.panX = 0; state.panY = 0; state.slidePos = 0.5;
+            render();
+        });
+    });
+}
+
+sampleSelect.addEventListener('change', (e) => loadSamplePair(e.target.value));
+
+if (SAMPLE_FOLDERS.length > 0) {
+    sampleSelect.value = SAMPLE_FOLDERS[0];
+    loadSamplePair(SAMPLE_FOLDERS[0]);
+}
+
+/* ---------- Manual File Loading ---------- */
+
 function readImage(input, key, statusEl) {
   const file = input.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = ev => {
     state[key] = ev.target.result;
-    const name = file.name.length > 20 ? file.name.slice(0, 17) + '…' : file.name;
+    const name = file.name.length > 15 ? file.name.slice(0, 12) + '…' : file.name;
     statusEl.textContent = name;
     statusEl.title = file.name;
     statusEl.classList.add('loaded');
+    
+    sampleSelect.value = "custom";
+    loadingStatus.textContent = "";
+
+    if (state.img1 && state.img2) {
+      state.zoom = 1; state.panX = 0; state.panY = 0; state.slidePos = 0.5;
+    }
     render();
   };
   reader.readAsDataURL(file);
 }
+
 document.getElementById('load1Btn').onclick = () => document.getElementById('file1Input').click();
 document.getElementById('load2Btn').onclick = () => document.getElementById('file2Input').click();
 document.getElementById('file1Input').onchange = e => readImage(e.target, 'img1', file1Status);
 document.getElementById('file2Input').onchange = e => readImage(e.target, 'img2', file2Status);
 
-/* ---------- mode switching ---------- */
+
+/* ---------- Mode Switching & Zooming ---------- */
 document.querySelectorAll('.mode-btn').forEach(btn => {
   btn.onclick = () => {
     if (state.mode === btn.dataset.mode) return;
     document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     state.mode = btn.dataset.mode;
-    // Preserve zoom/pan across toggle <-> split (intuitive).
-    // Reset slide divider each time we enter slide mode.
     if (state.mode === 'slide') state.slidePos = 0.5;
     render();
   };
 });
 
 document.getElementById('resetBtn').onclick = () => {
-  state.zoom = 1; state.panX = 0; state.panY = 0;
-  state.slidePos = 0.5;
+  state.zoom = 1; state.panX = 0; state.panY = 0; state.slidePos = 0.5;
   render();
 };
 
-/* ---------- zoom helpers ---------- */
 function zoomAroundPoint(px, py, newZoom) {
   newZoom = clamp(newZoom, ZOOM_MIN, ZOOM_MAX);
-  if (newZoom <= 1) {
-    state.zoom = 1;
-    state.panX = 0;
-    state.panY = 0;
-    return;
-  }
+  if (newZoom <= 1) { state.zoom = 1; state.panX = 0; state.panY = 0; return; }
   const imgX = (px - state.panX) / state.zoom;
   const imgY = (py - state.panY) / state.zoom;
   state.panX = px - imgX * newZoom;
@@ -339,7 +300,6 @@ zoomSlider.oninput = e => {
   if (state.mode === 'slide') return;
   const newZoom = parseFloat(e.target.value);
   const rect = stage.getBoundingClientRect();
-  // Zoom around center of stage (or center of left pane in split mode)
   const px = state.mode === 'split' ? rect.width / 4 : rect.width / 2;
   const py = rect.height / 2;
   zoomAroundPoint(px, py, newZoom);
@@ -354,15 +314,12 @@ function applyTransforms() {
   });
 }
 
-/* ---------- main render dispatch ---------- */
+/* ---------- Rendering Core ---------- */
 function render() {
   stage.innerHTML = '';
   if (!state.img1 || !state.img2) {
-    const msg = !state.img1 && !state.img2
-      ? 'Load both images to begin comparison.'
-      : !state.img1 ? 'Load Image 1 to begin comparison.'
-                    : 'Load Image 2 to begin comparison.';
-    stage.innerHTML = `<div class="empty">${msg}</div>`;
+    const msg = !state.img1 && !state.img2 ? 'Load both images to begin comparison.' : !state.img1 ? 'Load Image 1 to begin comparison.' : 'Load Image 2 to begin comparison.';
+    stage.innerHTML = `<div class="empty">${loadingStatus.textContent || msg}</div>`;
     updateZoomUi();
     return;
   }
@@ -374,39 +331,22 @@ function render() {
 
 /* ---------- SLIDE (juxtapose) ---------- */
 function renderSlide() {
-  const el = document.createElement('div');
-  el.className = 'slide-stage';
+  const el = document.createElement('div'); el.className = 'slide-stage';
 
-  const img1 = new Image();
-  img1.src = state.img1; img1.className = 'slide-img'; img1.draggable = false;
+  const img1 = new Image(); img1.src = state.img1; img1.className = 'slide-img'; img1.draggable = false;
+  const img2 = new Image(); img2.src = state.img2; img2.className = 'slide-img'; img2.draggable = false;
 
-  const img2 = new Image();
-  img2.src = state.img2; img2.className = 'slide-img'; img2.draggable = false;
+  const labelL = document.createElement('div'); labelL.className = 'slide-label left'; labelL.textContent = 'Image 2';
+  const labelR = document.createElement('div'); labelR.className = 'slide-label right'; labelR.textContent = 'Image 1';
 
-  const labelL = document.createElement('div');
-  labelL.className = 'slide-label left';
-  labelL.textContent = 'Image 2';
-
-  const labelR = document.createElement('div');
-  labelR.className = 'slide-label right';
-  labelR.textContent = 'Image 1';
-
-  const divider = document.createElement('div');
-  divider.className = 'slide-divider';
-  const handle = document.createElement('div');
-  handle.className = 'slide-handle';
-  handle.textContent = '⇆';
+  const divider = document.createElement('div'); divider.className = 'slide-divider';
+  const handle = document.createElement('div'); handle.className = 'slide-handle'; handle.textContent = '⇆';
   divider.appendChild(handle);
 
-  el.appendChild(img1);
-  el.appendChild(img2);
-  el.appendChild(labelL);
-  el.appendChild(labelR);
-  el.appendChild(divider);
+  el.append(img1, img2, labelL, labelR, divider);
   stage.appendChild(el);
 
   function update() {
-    // image 2 on the LEFT side: clip away (1 - slidePos) from the right
     img2.style.clipPath = `inset(0 ${(1 - state.slidePos) * 100}% 0 0)`;
     divider.style.left  = `${state.slidePos * 100}%`;
   }
@@ -418,45 +358,26 @@ function renderSlide() {
     state.slidePos = clamp((clientX - rect.left) / rect.width, 0, 1);
     update();
   }
-  el.addEventListener('mousedown', e => {
-    dragging = true; setFromX(e.clientX); e.preventDefault();
-  });
+  el.addEventListener('mousedown', e => { dragging = true; setFromX(e.clientX); e.preventDefault(); });
   window.addEventListener('mousemove', e => { if (dragging) setFromX(e.clientX); });
   window.addEventListener('mouseup', () => { dragging = false; });
-  // touch
-  el.addEventListener('touchstart', e => {
-    if (e.touches.length === 1) { dragging = true; setFromX(e.touches[0].clientX); }
-  }, { passive: true });
-  el.addEventListener('touchmove', e => {
-    if (dragging && e.touches.length === 1) {
-      setFromX(e.touches[0].clientX);
-      e.preventDefault();
-    }
-  }, { passive: false });
+  el.addEventListener('touchstart', e => { if (e.touches.length === 1) { dragging = true; setFromX(e.touches[0].clientX); } }, { passive: true });
+  el.addEventListener('touchmove', e => { if (dragging && e.touches.length === 1) { setFromX(e.touches[0].clientX); e.preventDefault(); } }, { passive: false });
   el.addEventListener('touchend', () => { dragging = false; });
 }
 
 /* ---------- TOGGLE ---------- */
 function renderToggle() {
-  const el = document.createElement('div');
-  el.className = 'toggle-stage';
+  const el = document.createElement('div'); el.className = 'toggle-stage';
 
-  const img1 = new Image();
-  img1.src = state.img1; img1.className = 'toggle-img'; img1.draggable = false;
-  const img2 = new Image();
-  img2.src = state.img2; img2.className = 'toggle-img hidden'; img2.draggable = false;
+  const img1 = new Image(); img1.src = state.img1; img1.className = 'toggle-img'; img1.draggable = false;
+  const img2 = new Image(); img2.src = state.img2; img2.className = 'toggle-img hidden'; img2.draggable = false;
 
-  const indicator = document.createElement('div');
-  indicator.className = 'toggle-indicator';
-
-  const hint = document.createElement('div');
-  hint.className = 'toggle-hint';
+  const indicator = document.createElement('div'); indicator.className = 'toggle-indicator';
+  const hint = document.createElement('div'); hint.className = 'toggle-hint';
   hint.textContent = 'Click to toggle  ·  Drag to pan  ·  Scroll to zoom';
 
-  el.appendChild(img1);
-  el.appendChild(img2);
-  el.appendChild(indicator);
-  el.appendChild(hint);
+  el.append(img1, img2, indicator, hint);
   stage.appendChild(el);
 
   function show(n) {
@@ -469,133 +390,93 @@ function renderToggle() {
 
   function applyT() {
     const t = `translate(${state.panX}px, ${state.panY}px) scale(${state.zoom})`;
-    img1.style.transform = t;
-    img2.style.transform = t;
+    img1.style.transform = t; img2.style.transform = t;
   }
   applyT();
 
-  // Drag-vs-click detection
   let downX = 0, downY = 0, dragging = false, moved = false;
   const THRESHOLD = 4;
 
   el.addEventListener('mousedown', e => {
     if (e.button !== 0) return;
-    dragging = true; moved = false;
-    downX = e.clientX; downY = e.clientY;
-    el.classList.add('grabbing');
-    e.preventDefault();
+    dragging = true; moved = false; downX = e.clientX; downY = e.clientY;
+    el.classList.add('grabbing'); e.preventDefault();
   });
-
   window.addEventListener('mousemove', e => {
     if (!dragging) return;
     if (!moved && Math.hypot(e.clientX - downX, e.clientY - downY) > THRESHOLD) moved = true;
-    if (moved) {
-      state.panX += e.movementX;
-      state.panY += e.movementY;
-      applyT();
-    }
+    if (moved) { state.panX += e.movementX; state.panY += e.movementY; applyT(); }
   });
-
   window.addEventListener('mouseup', () => {
     if (!dragging) return;
-    dragging = false;
-    el.classList.remove('grabbing');
+    dragging = false; el.classList.remove('grabbing');
     if (!moved) show(state.toggleImg === 1 ? 2 : 1);
   });
-
   el.addEventListener('wheel', e => {
     e.preventDefault();
     const rect = el.getBoundingClientRect();
-    const px = e.clientX - rect.left;
-    const py = e.clientY - rect.top;
+    const px = e.clientX - rect.left, py = e.clientY - rect.top;
     const factor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
     zoomAroundPoint(px, py, state.zoom * factor);
-    applyT();
-    updateZoomUi();
+    applyT(); updateZoomUi();
   }, { passive: false });
 }
 
 /* ---------- SPLIT ---------- */
 function renderSplit() {
-  const el = document.createElement('div');
-  el.className = 'split-stage';
+  const el = document.createElement('div'); el.className = 'split-stage';
 
   function makePane(src, labelText) {
-    const pane = document.createElement('div');
-    pane.className = 'split-pane';
-    const img = new Image();
-    img.src = src; img.className = 'split-img'; img.draggable = false;
-    const label = document.createElement('div');
-    label.className = 'split-label';
-    label.textContent = labelText;
-    pane.appendChild(img);
-    pane.appendChild(label);
+    const pane = document.createElement('div'); pane.className = 'split-pane';
+    const img = new Image(); img.src = src; img.className = 'split-img'; img.draggable = false;
+    const label = document.createElement('div'); label.className = 'split-label'; label.textContent = labelText;
+    pane.append(img, label);
     return { pane, img };
   }
 
   const p1 = makePane(state.img1, 'Image 1');
   const p2 = makePane(state.img2, 'Image 2');
-  el.appendChild(p1.pane);
-  el.appendChild(p2.pane);
+  el.append(p1.pane, p2.pane);
   stage.appendChild(el);
 
   function applyT() {
     const t = `translate(${state.panX}px, ${state.panY}px) scale(${state.zoom})`;
-    p1.img.style.transform = t;
-    p2.img.style.transform = t;
+    p1.img.style.transform = t; p2.img.style.transform = t;
   }
   applyT();
 
-  // Synchronized panning across both panes
   let dragging = false, activePane = null;
   function attachPan(pane) {
     pane.addEventListener('mousedown', e => {
       if (e.button !== 0) return;
-      dragging = true;
-      activePane = pane;
-      pane.classList.add('grabbing');
-      e.preventDefault();
+      dragging = true; activePane = pane; pane.classList.add('grabbing'); e.preventDefault();
     });
   }
-  attachPan(p1.pane);
-  attachPan(p2.pane);
+  attachPan(p1.pane); attachPan(p2.pane);
 
   window.addEventListener('mousemove', e => {
     if (!dragging) return;
-    state.panX += e.movementX;
-    state.panY += e.movementY;
-    applyT();
+    state.panX += e.movementX; state.panY += e.movementY; applyT();
   });
   window.addEventListener('mouseup', () => {
     if (!dragging) return;
-    dragging = false;
-    if (activePane) activePane.classList.remove('grabbing');
-    activePane = null;
+    dragging = false; if (activePane) activePane.classList.remove('grabbing'); activePane = null;
   });
 
-  // Wheel-zoom in either pane (synced) – complements the slider
   function attachWheel(pane) {
     pane.addEventListener('wheel', e => {
       e.preventDefault();
       const rect = pane.getBoundingClientRect();
-      const px = e.clientX - rect.left;
-      const py = e.clientY - rect.top;
+      const px = e.clientX - rect.left, py = e.clientY - rect.top;
       const factor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
       zoomAroundPoint(px, py, state.zoom * factor);
-      applyT();
-      updateZoomUi();
+      applyT(); updateZoomUi();
     }, { passive: false });
   }
-  attachWheel(p1.pane);
-  attachWheel(p2.pane);
+  attachWheel(p1.pane); attachWheel(p2.pane);
 }
 
-/* ---------- init ---------- */
-render();
-
-window.addEventListener('resize', () => {
-  if (state.img1 && state.img2) render();
-});
+window.addEventListener('resize', () => { if (state.img1 && state.img2) render(); });
 </script>
 </body>
 </html>
